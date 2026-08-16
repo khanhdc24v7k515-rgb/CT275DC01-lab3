@@ -4,9 +4,21 @@ require_once __DIR__ . '/../src/bootstrap.php';
 include_once __DIR__ . '/../src/partials/header.php';
 
 use CT275\Labs\Contact;
+use CT275\Labs\Paginator;
 
 $contact = new Contact($PDO);
-$contacts = $contact->all();
+
+$limit = (isset($_GET['limit']) && is_numeric($_GET['limit'])) ?
+    (int)$_GET['limit'] : 5;
+$page = (isset($_GET['page']) && is_numeric($_GET['page'])) ?
+    (int)$_GET['page'] : 1;
+$paginator = new Paginator(
+    totalRecords: $contact->count(),
+    recordsPerPage: $limit,
+    currentPage: $page
+);
+$contacts = $contact->paginate($paginator->recordOffset, $paginator->recordsPerPage);
+$pages = $paginator->getPages(length: 3);
 
 include_once __DIR__ . '/../src/partials/header.php';
 ?>
@@ -62,24 +74,23 @@ include_once __DIR__ . '/../src/partials/header.php';
                 <!-- Table Ends Here -->
 
                 <!-- Pagination -->
+                <!-- Pagination -->
                 <nav class="d-flex justify-content-center">
                     <ul class="pagination">
-                        <li class="page-item">
-                            <a role="button" class="page-link">
+                        <li class="page-item<?= $paginator->getPrevPage() ? '' : ' disabled' ?>">
+                            <a role="button" href="/?page=<?= $paginator->getPrevPage() ?>&limit=5" class="page-link">
                                 <span>&laquo;</span>
                             </a>
                         </li>
-                        <li class="page-item">
-                            <a role="button" class="page-link">1</a>
+
+                        <?php foreach ($pages as $page) : ?>
+                        <li class="page-item<?= $paginator->currentPage === $page ? ' active' : '' ?>">
+                            <a role="button" href="/?page=<?= $page ?>&limit=5" class="page-link"><?= $page ?></a>
                         </li>
-                        <li class="page-item active">
-                            <a role="button" class="page-link">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a role="button" class="page-link">3</a>
-                        </li>
-                        <li class="page-item">
-                            <a role="button" class="page-link">
+                        <?php endforeach ?>
+
+                        <li class="page-item<?= $paginator->getNextPage() ? '' : ' disabled' ?>">
+                            <a role="button" href="/?page=<?= $paginator->getNextPage() ?>&limit=5" class="page-link">
                                 <span>&raquo;</span>
                             </a>
                         </li>
