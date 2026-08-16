@@ -14,19 +14,23 @@ class Contact
     public $notes;
     public $created_at;
     public $updated_at;
+    public ?string $avatar = null;
 
     public function __construct(?PDO $pdo)
     {
         $this->db = $pdo;
     }
 
-    public function fill(array $data): Contact
-    {
-        $this->name = $data['name'] ?? '';
-        $this->phone = $data['phone'] ?? '';
-        $this->notes = $data['notes'] ?? '';
-        return $this;
+    public function fill(array $data): static
+  {
+    $this->name = $data['name'] ?? $this->name;
+    $this->phone = $data['phone'] ?? $this->phone;
+    $this->notes = $data['notes'] ?? $this->notes;
+    if (isset($data['avatar'])) {
+        $this->avatar = $data['avatar'];
     }
+    return $this;
+  }
 
     public function validate(array $data): array
     {
@@ -74,6 +78,7 @@ class Contact
         $this->name = $row['name'];
         $this->phone = $row['phone'];
         $this->notes = $row['notes'];
+        $this->avatar = $row['avatar'] ?? null;
         $this->created_at = $row['created_at'];
         $this->updated_at = $row['updated_at'];
 
@@ -109,24 +114,26 @@ class Contact
         if ($this->id >= 0) {
             $statement = $this->db->prepare(
                 'update contacts set name = :name,
-                    phone = :phone, notes = :notes, updated_at = now()
+                    phone = :phone, notes = :notes, avatar = :avatar, updated_at = now()
                     where id = :id'
             );
             $result = $statement->execute([
                 'name' => $this->name,
                 'phone' => $this->phone,
                 'notes' => $this->notes,
+                'avatar' => $this->avatar,
                 'id' => $this->id
             ]);
         } else {
             $statement = $this->db->prepare(
-                'insert into contacts (name, phone, notes, created_at, updated_at)
-                    values (:name, :phone, :notes, now(), now())'
+                'insert into contacts (name, phone, notes, avatar, created_at, updated_at)
+                    values (:name, :phone, :notes, :avatar, now(), now())'
             );
             $result = $statement->execute([
                 'name' => $this->name,
                 'phone' => $this->phone,
-                'notes' => $this->notes
+                'notes' => $this->notes,
+                'avatar' => $this->avatar
             ]);
             if ($result) {
                 $this->id = $this->db->lastInsertId();

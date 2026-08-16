@@ -5,10 +5,20 @@ use CT275\Labs\Contact;
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $avatarPath = null;
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/uploads/';
+        $extension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+        $filename = time() . '_' . uniqid() . '.' . $extension;
+        if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir . $filename)) {
+            $avatarPath = '/uploads/' . $filename;
+        }
+    }
     $contactData = [
         'name' => $_POST['name'] ?? '',
         'phone' => $_POST['phone'] ?? '',
         'notes' => $_POST['notes'] ?? '',
+        'avatar' => $avatarPath
     ];
 
     $contact = new Contact($PDO);
@@ -35,7 +45,7 @@ include_once __DIR__ . '/../src/partials/header.php';
         <div class="row">
             <div class="col-12">
 
-                <form method="post" class="col-md-6 offset-md-3">
+                <form action="/add.php" method="POST" enctype="multipart/form-data">
 
                     <!-- Name -->
                     <div class="mb-3">
@@ -80,6 +90,13 @@ include_once __DIR__ . '/../src/partials/header.php';
                         </span>
                         <?php endif ?>
                     </div>
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label">Avatar</label>
+                        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*"
+                            onchange="previewImage(this)">
+                        <img id="avatar-preview" src="#" alt="Preview" class="mt-2 rounded-circle"
+                            style="display:none; width: 80px; height: 80px; object-fit: cover;">
+                    </div>
 
                     <!-- Submit -->
                     <button type="submit" name="submit" class="btn btn-primary">Add Contact</button>
@@ -91,6 +108,19 @@ include_once __DIR__ . '/../src/partials/header.php';
     </div>
 
     <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
+    <script>
+    function previewImage(input) {
+        const preview = document.getElementById('avatar-preview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    </script>
 </body>
 
 </html>

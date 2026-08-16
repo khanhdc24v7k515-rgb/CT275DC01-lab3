@@ -45,6 +45,7 @@ include_once __DIR__ . '/../src/partials/header.php';
                 <table id="contacts" class="table table-striped table-bordered">
                     <thead>
                         <tr>
+                            <th scope="col">Avatar</th>
                             <th scope="col">Name</th>
                             <th scope="col">Phone</th>
                             <th scope="col">Date Created</th>
@@ -55,6 +56,14 @@ include_once __DIR__ . '/../src/partials/header.php';
                     <tbody>
                         <?php foreach ($contacts as $contact): ?>
                         <tr>
+                            <td>
+                                <?php if ($contact->avatar) : ?>
+                                <img src="<?= html_escape($contact->avatar) ?>" alt="Avatar" class="rounded-circle"
+                                    style="width: 40px; height: 40px; object-fit: cover;">
+                                <?php else : ?>
+                                <span class="badge bg-secondary">No img</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?= html_escape($contact->name) ?></td>
                             <td><?= html_escape($contact->phone) ?></td>
                             <td><?= html_escape(date("d-m-Y", strtotime($contact->created_at))) ?></td>
