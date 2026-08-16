@@ -2,11 +2,11 @@
 
 Học kỳ 3, Năm học: 2025-2026
 
-**Họ tên**: ...
+**Họ tên**: LÊ VĂN KHÁNH
 
-**MSSV**: ...
+**MSSV**: DC24V7K515
 
-**Lớp HP**: ...
+**Lớp HP**: CT275
 
 
 
