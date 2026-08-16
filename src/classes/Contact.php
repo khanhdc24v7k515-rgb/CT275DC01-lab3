@@ -135,4 +135,22 @@ class Contact
 
         return $result;
     }
+    public function find(int $id): ?Contact
+    {
+        $statement = $this->db->prepare('select * from contacts where id = :id');
+        $statement->execute(['id' => $id]);
+
+        if ($row = $statement->fetch()) {
+            $this->fillFromDbRow($row);
+            return $this;
+        }
+
+        return null;
+    }
+
+    public function update(array $data): bool
+    {
+        $this->fill($data);
+        return $this->save();
+    }
 }
